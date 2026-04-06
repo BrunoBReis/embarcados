@@ -1,0 +1,15 @@
+services:
+  esp32:
+    build:
+      context: ./app
+      dockerfile: .devcontainer/Dockerfile
+      args:
+        IDF_VERSION: ${IDF_VERSION:-release-v5.2}
+    container_name: esp32-idf
+    working_dir: /workspace
+    volumes:
+      - ./app:/workspace
+    devices:
+      - ${PORT:-/dev/ttyACM0}:${PORT:-/dev/ttyACM0}
+    stdin_open: true
+    tty: true
