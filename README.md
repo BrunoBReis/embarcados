@@ -74,9 +74,75 @@ make flash PORT=/dev/ttyUSB0
 make set-target TARGET=esp32s3
 ```
 
+## Organização do código
+
+O ESP-IDF organiza o projeto em componentes. O componente principal deste projeto é `app/main/`, onde fica a função `app_main()`, que é o ponto de entrada da aplicação.
+
+Para projetos pequenos, você pode manter vários arquivos no próprio componente `main`:
+
+```text
+app/main/
+  CMakeLists.txt
+  main.c
+  led.c
+  led.h
+  sensor.c
+  sensor.h
+```
+
+Nesse caso, liste os arquivos `.c` em `app/main/CMakeLists.txt` e exponha a pasta atual para os headers:
+
+```cmake
+idf_component_register(SRCS "main.c" "led.c" "sensor.c"
+                       INCLUDE_DIRS ".")
+```
+
+Arquivos `.c` entram em `SRCS`, porque precisam ser compilados. Arquivos `.h` ficam em diretórios listados em `INCLUDE_DIRS`, porque são incluídos por outros arquivos com `#include`.
+
+Para projetos maiores, é melhor separar responsabilidades em componentes próprios:
+
+```text
+app/
+  main/
+    CMakeLists.txt
+    main.c
+  components/
+    led/
+      CMakeLists.txt
+      led.c
+      include/
+        led.h
+    sensor/
+      CMakeLists.txt
+      sensor.c
+      include/
+        sensor.h
+```
+
+Um componente `led` poderia ter:
+
+```cmake
+idf_component_register(SRCS "led.c"
+                       INCLUDE_DIRS "include")
+```
+
+E o componente `main` poderia declarar que depende dele:
+
+```cmake
+idf_component_register(SRCS "main.c"
+                       INCLUDE_DIRS "."
+                       REQUIRES led)
+```
+
+Essa separação é uma boa prática quando um módulo tem responsabilidade clara, como driver de LED, sensor, display, Wi-Fi ou armazenamento. Ela deixa as dependências explícitas e facilita reutilizar código em outros projetos.
+
+Na hora de gravar na placa, o ESP-IDF não envia cada arquivo `.c` separadamente. Ele compila todos os `.c` registrados nos componentes, junta tudo com as bibliotecas do ESP-IDF e gera um firmware final, como `app/build/hello_esp32.bin`. O `make flash` grava esse binário final na memória flash da ESP32.
+
 ## Comandos disponíveis
 
-- `make up`: sobe o container e faz build da imagem
+- `make help`: lista os comandos disponíveis
+- `make up`: sobe o container usando a imagem existente
+- `make rebuild`: sobe o container reconstruindo a imagem
 - `make down`: para e remove o container
 - `make set-target`: executa `idf.py set-target $(TARGET)`
 - `make build`: compila o firmware
