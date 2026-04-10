@@ -8,11 +8,12 @@ SERVICE ?= esp32
 IDF_EXPORT ?= . /opt/esp/idf/export.sh
 IDF_PY ?= $(IDF_EXPORT) && idf.py
 
-.PHONY: help up down build set-target flash monitor flash-monitor menuconfig bash
+.PHONY: help up rebuild down build set-target flash monitor flash-monitor menuconfig bash
 
 help:
 	@printf 'Targets disponiveis:\n'
-	@printf '  make up             Sobe o container e faz build da imagem\n'
+	@printf '  make up             Sobe o container usando a imagem existente\n'
+	@printf '  make rebuild        Sobe o container reconstruindo a imagem\n'
 	@printf '  make down           Para e remove o container\n'
 	@printf '  make set-target     Configura o target do ESP-IDF usando TARGET=%s\n' '$(TARGET)'
 	@printf '  make build          Compila o firmware\n'
@@ -30,6 +31,9 @@ help:
 	@printf '  make set-target TARGET=esp32s3\n'
 
 up:
+	$(COMPOSE) up -d
+
+rebuild:
 	$(COMPOSE) up -d --build
 
 down:
