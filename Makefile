@@ -1,3 +1,6 @@
+-include .env
+export PORT TARGET IDF_VERSION
+
 PORT ?= /dev/ttyACM0
 TARGET ?= esp32
 COMPOSE ?= docker compose -f compose.yml
