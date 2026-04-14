@@ -8,7 +8,7 @@ SERVICE ?= esp32
 IDF_EXPORT ?= . /opt/esp/idf/export.sh
 IDF_PY ?= $(IDF_EXPORT) && idf.py
 
-.PHONY: help up rebuild down build set-target flash monitor flash-monitor menuconfig bash
+.PHONY: help up rebuild down build set-target flash erase-flash monitor flash-monitor menuconfig bash
 
 help:
 	@printf 'Targets disponiveis:\n'
@@ -18,6 +18,7 @@ help:
 	@printf '  make set-target     Configura o target do ESP-IDF usando TARGET=%s\n' '$(TARGET)'
 	@printf '  make build          Compila o firmware\n'
 	@printf '  make flash          Grava o firmware usando PORT=%s\n' '$(PORT)'
+	@printf '  make erase-flash    Apaga a flash da placa usando PORT=%s\n' '$(PORT)'
 	@printf '  make monitor        Abre o monitor serial usando PORT=%s\n' '$(PORT)'
 	@printf '  make flash-monitor  Grava o firmware e abre o monitor serial\n'
 	@printf '  make menuconfig     Abre a configuracao interativa do ESP-IDF\n'
@@ -47,6 +48,9 @@ set-target:
 
 flash:
 	$(COMPOSE) exec $(SERVICE) bash -lc '$(IDF_PY) -p $(PORT) flash'
+
+erase-flash:
+	$(COMPOSE) exec $(SERVICE) bash -lc '$(IDF_PY) -p $(PORT) erase-flash'
 
 monitor:
 	$(COMPOSE) exec $(SERVICE) bash -lc '$(IDF_PY) -p $(PORT) monitor'
